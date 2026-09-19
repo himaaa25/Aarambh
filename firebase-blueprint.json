@@ -1,0 +1,168 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Authenticated user profile in the Aarambh Municipal System",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Authentication UID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the user",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address",
+          "format": "email",
+          "maxLength": 100
+        },
+        "role": {
+          "type": "string",
+          "description": "System access role",
+          "enum": ["citizen", "officer", "worker"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of account creation"
+        }
+      },
+      "required": ["uid", "name", "email", "role", "createdAt"]
+    },
+    "Complaint": {
+      "title": "Complaint",
+      "description": "Civic complaint logged by a citizen for municipal action",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique complaint ID"
+        },
+        "citizenId": {
+          "type": "string",
+          "description": "UID of the citizen who reported the grievance"
+        },
+        "citizenName": {
+          "type": "string",
+          "description": "Name of reporting citizen",
+          "maxLength": 100
+        },
+        "citizenEmail": {
+          "type": "string",
+          "description": "Email of reporting citizen",
+          "format": "email",
+          "maxLength": 100
+        },
+        "title": {
+          "type": "string",
+          "description": "Complaint headline",
+          "maxLength": 200
+        },
+        "category": {
+          "type": "string",
+          "description": "Municipal category (Waste, Road Repair, Water Supply, Electrical, Drainage)",
+          "enum": ["Waste Management", "Road Repair", "Water Supply", "Street Lighting", "Drainage & Sewerage"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed explanation of grievance",
+          "maxLength": 1000
+        },
+        "location": {
+          "type": "string",
+          "description": "Specific municipal ward or zone location",
+          "maxLength": 200
+        },
+        "status": {
+          "type": "string",
+          "description": "Current lifecycle status of the complaint",
+          "enum": ["Submitted", "Assigned", "In Progress", "Completed"]
+        },
+        "assignedWorkerId": {
+          "type": "string",
+          "description": "UID or worker ID of assigned field worker"
+        },
+        "assignedWorkerName": {
+          "type": "string",
+          "description": "Name of assigned field worker",
+          "maxLength": 100
+        },
+        "assignedAt": {
+          "type": "string",
+          "description": "Timestamp when worker was assigned by officer"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of complaint submission"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of latest update"
+        }
+      },
+      "required": ["id", "citizenId", "citizenName", "citizenEmail", "title", "category", "description", "location", "status", "createdAt", "updatedAt"]
+    },
+    "Worker": {
+      "title": "Worker",
+      "description": "Municipal field workforce roster profile",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique worker identifier"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Linked Firebase Auth UID if worker has registered account"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of field worker",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "Official worker email",
+          "format": "email",
+          "maxLength": 100
+        },
+        "skills": {
+          "type": "string",
+          "description": "Primary specialization or skill categories",
+          "maxLength": 200
+        },
+        "location": {
+          "type": "string",
+          "description": "Assigned municipal zone or ward",
+          "maxLength": 100
+        },
+        "workload": {
+          "type": "number",
+          "description": "Current number of active ongoing tasks"
+        },
+        "performance": {
+          "type": "number",
+          "description": "Worker performance score (rating 1 to 5)"
+        }
+      },
+      "required": ["id", "name", "email", "skills", "location", "workload", "performance"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles with role verification"
+    },
+    "/complaints/{complaintId}": {
+      "schema": "Complaint",
+      "description": "Municipal complaints lifecycle from citizen submission through officer assignment to worker completion"
+    },
+    "/workers/{workerId}": {
+      "schema": "Worker",
+      "description": "Workforce roster with skill, location, workload and performance metrics for officer assignment"
+    }
+  }
+}

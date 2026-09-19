@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isOfficer() {
+      return isSignedIn() && getUserRole() == 'officer';
+    }
+
+    function isWorker() {
+      return isSignedIn() && getUserRole() == 'worker';
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isOfficer());
+      allow list: if isOfficer();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Complaints Collection
+    match /complaints/{complaintId} {
+      // Read: Citizen reads own, Worker reads assigned, Officer reads all
+      allow get: if isSignedIn() && (
+        resource.data.citizenId == request.auth.uid ||
+        resource.data.assignedWorkerId == request.auth.uid ||
+        isOfficer()
+      );
+      
+      allow list: if isSignedIn() && (
+        resource.data.citizenId == request.auth.uid ||
+        resource.data.assignedWorkerId == request.auth.uid ||
+        isOfficer()
+      );
+
+      // Create: Citizen can create their own complaints
+      allow create: if isSignedIn() && request.resource.data.citizenId == request.auth.uid;
+
+      // Update:
+      // 1. Officer can assign workers and update status
+      // 2. Worker can update status of their assigned task
+      allow update: if isSignedIn() && (
+        isOfficer() ||
+        (resource.data.assignedWorkerId == request.auth.uid)
+      );
+
+      allow delete: if isOfficer();
+    }
+
+    // Workers Roster Collection
+    match /workers/{workerId} {
+      // Officer can view and manage all workers; worker can view their own profile
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isOfficer();
+    }
+  }
+}

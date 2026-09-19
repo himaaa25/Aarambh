@@ -1,0 +1,7 @@
+{
+  "name": "AARAMBH — Smart Municipal Workforce Management System",
+  "description": "Smart Municipal Workforce Management System connecting Citizens, Officers, and Field Workers with role-based dashboards, complaint tracking, and smart workforce assignment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
